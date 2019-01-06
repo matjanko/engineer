@@ -1,0 +1,191 @@
+﻿<Window x:Class="Engineer.Client.MinimumReinforcementAreasView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"        
+        xmlns:local="clr-namespace:Engineer.Client"   
+        xmlns:controls="clr-namespace:Engineer.UserControls;assembly=Engineer.UserControls"
+        xmlns:vm="clr-namespace:Engineer.ViewModels;assembly=Engineer.ViewModels"
+        Title="Zbrojenie minimalne wg PN-EN-1992-1-1" 
+        Height="Auto" Width="400" SizeToContent="Height"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanMinimize">
+    <Window.DataContext>
+        <vm:MinimumReinforcementAreasViewModel/>
+    </Window.DataContext>
+    <Window.Resources>
+        <vm:TensileConverter x:Key="tensileConverterKey"/>
+    </Window.Resources>
+
+    <StackPanel Margin="5">
+        <GroupBox Header="Dane materiałowe">
+            <Grid Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition Width="70"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Beton" Grid.Column="0" Padding="0,0,5,0"
+                           VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                <ComboBox Grid.Column="1"
+                          ItemsSource="{Binding Path=ConcreteClasses, Mode=OneWay}" DisplayMemberPath="Name" 
+                          SelectedItem="{Binding Path=SelectedConcrete}" Height="22"/>
+                <Label Grid.Column="2" Content="{Binding Path=EffectiveTensileStrenght}" Height="25"
+                       Foreground="Gray"
+                       VerticalAlignment="Center" HorizontalAlignment="Right"/>
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="Wymiary przekroju [mm]">
+            <Grid Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition Width="70"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Column="0" Grid.Row="0" Text="b =" Padding="0,0,5,0"
+                           VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                <TextBox Grid.Column="1" Grid.Row="0" Height="22" 
+                         Text="{Binding Path=SectionWidth}"
+                         IsEnabled="{Binding Path=IsWidthEnabled}"
+                         VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                <CheckBox Grid.Column="2" Grid.Row="0" Content="płyta" 
+                          IsChecked="{Binding Path=IsSlabSelected}"
+                          VerticalAlignment="Center" Margin="20,0,0,0"/>
+                <TextBlock Grid.Column="0" Grid.Row="1" Text="h =" Padding="0,5,5,0"
+                           VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                <TextBox Grid.Column="1" Grid.Row="1" Height="22" Margin="0,5,0,0" 
+                         Text="{Binding Path=SectionHeight}"
+                         VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                <Label Grid.Column="3" Grid.Row="1" Content="{Binding Path=Area}" Height="25"
+                       Foreground="Gray"
+                       VerticalAlignment="Center" HorizontalAlignment="Right"/>
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="Rozkład naprężeń">
+            <StackPanel HorizontalAlignment="Left" Margin="10,10,0,5">
+
+                <RadioButton Name="cbExtension" Content="osiowe rozciąganie" Margin="0,0,0,5"
+                             Command="{Binding Path=GetTensile}"
+                             CommandParameter="{Binding ElementName=cbExtension, Path=Content}"/>
+                <RadioButton Name="cbBending" Content="zginanie"
+                             Command="{Binding Path=GetTensile}"
+                             CommandParameter="{Binding ElementName=cbBending, Path=Content}"/>
+            </StackPanel>
+        </GroupBox>
+        <GroupBox Header="Dane geometryczne zbrojenia">
+            <Grid Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition Width="70"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Średnica" Grid.Column="0" Padding="0,0,5,0"
+                           VerticalAlignment="Top" HorizontalAlignment="Right"/>
+                <ListBox Grid.Column="1" Height="85" SelectionMode="Multiple"
+                         ItemsSource="{Binding Path=ReinforcingBars}">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <VirtualizingStackPanel IsItemsHost="False" Orientation="Vertical"/>
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                    <ListBox.Resources>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="OverridesDefaultStyle" Value="true" />
+                            <Setter Property="SnapsToDevicePixels" Value="true" />
+                            <Setter Property="IsSelected" Value="{Binding IsSelected}"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListBoxItem">
+                                        <CheckBox Margin="5,2" IsChecked="{Binding IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Content="{Binding Path=Diameter}"/>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListBox.Resources>
+                </ListBox>
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="Otulina zbrojenia [mm]">
+            <Grid Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition Width="70"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="c =" Grid.Column="0" Padding="0,0,5,0"
+                           VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                <TextBox Grid.Column="1" Height="22" VerticalAlignment="Center" Text="{Binding Path=Cover}"/>
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="Ograniczenie zarysowania [mm]">
+            <Grid Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition Width="70"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Rysa" Grid.Column="0" Padding="0,0,5,0"
+                           VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                <ComboBox Grid.Column="1" Height="22" VerticalAlignment="Center" 
+                          ItemsSource="{Binding Crack, Mode=OneWay}" DisplayMemberPath="Width" 
+                          SelectedItem="{Binding SelectedCrack}"/>
+            </Grid>
+        </GroupBox>
+        <Border Margin="0,7,0,0">
+            <Button Content="Oblicz"
+                        HorizontalAlignment="Center" Width="80" Height="25"
+                        Command="{Binding Path=Calculate}"/>
+        </Border>
+        <GroupBox Header="Wyniki">
+            <Grid Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition Width="70"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Button Grid.Column="2" Grid.Row="3" Content="Raport z obliczeń"
+                        HorizontalAlignment="Right" Width="110" Height="22" IsEnabled="False"/>
+
+                <Label Grid.Column="0" Grid.Row="0" Content="fct,eff ="
+                       HorizontalAlignment="Right"/>
+                <TextBox Grid.Column="1" Grid.Row="0" IsEnabled="False" Height="22"
+                         Text="{Binding Path=EffectiveTensileStrength}"/>
+
+                <Label Grid.Column="0" Grid.Row="1" Content="Act ="
+                       HorizontalAlignment="Right"/>
+                <TextBox Grid.Column="1" Grid.Row="1" IsEnabled="False" Height="22"
+                         Text="{Binding Path=SectionArea}"/>
+
+                <Label Grid.Column="0" Grid.Row="2" Content="k ="
+                       HorizontalAlignment="Right"/>
+                <TextBox Grid.Column="1" Grid.Row="2" IsEnabled="False" Height="22"
+                         Text="{Binding Path=NonUniformStressCoefficient}"/>
+
+                <Label Grid.Column="0" Grid.Row="3" Content="kc ="
+                       HorizontalAlignment="Right"/>
+                <TextBox Grid.Column="1" Grid.Row="3" IsEnabled="False" Height="22"
+                         Text="{Binding Path=StressDistributionCoefficient}"/>
+
+                <DataGrid Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="4" Height="100"
+                                  ItemsSource="{Binding Path=MinimumReinforcement}" Margin="0,5,0,0" AutoGenerateColumns="False"
+                                  IsEnabled="True" CanUserAddRows="False" CanUserDeleteRows="False" CanUserResizeColumns="False"
+                                  HeadersVisibility="Column" GridLinesVisibility="None" IsReadOnly="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="d" MinWidth="30" Binding="{Binding Path=d}"/>
+                        <DataGridTextColumn Header="d*" MinWidth="40" Binding="{Binding Path=ds}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </GroupBox>
+    </StackPanel>
+</Window>
