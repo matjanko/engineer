@@ -16,25 +16,42 @@ namespace Engineer.Domain
         public double d { get; private set; }
         public double ds { get; private set; }
         public double a { get; private set; }
+        public double sigmaS { get; private set; }
 
         private Concrete concrete;
         private Rectangle rectangle;
         private ReinforcingBar bar;
+        private Crack crack;
         private string stressType;
+        private double cover;
+       
+        private readonly int[] steelStress = new int[]
+        {
+            160, 200, 240, 280, 320, 360, 400, 450
+        };
+       
+        private readonly int[][] maxBarDiameter = new int[][]
+        {
+            new int[]{40, 32, 20, 16, 12, 10, 8, 6},
+            new int[]{32, 25, 16, 12, 10, 8, 6, 5},
+            new int[]{25, 16, 12, 8, 6, 5, 4, 0}
+        };
 
-        public MinimumReinforcement(Concrete concrete, Rectangle rectangle, ReinforcingBar bar, string stressType)
+        public MinimumReinforcement(Concrete concrete, Rectangle rectangle, ReinforcingBar bar, string stressType, double cover, Crack crack)
         {
             this.concrete = concrete;
             this.rectangle = rectangle;
             this.bar = bar;
             this.stressType = stressType;
+            this.cover = cover;
+            this.crack = crack;
             fcteff = EffectiveTensileStrengthValue();
             Act = ConcreteAreaWithinTensileZone();
             kc = StressDistributionCoefficient();
             k = NonUniformStressCoefficient();
             d = bar.Diameter;
             ds = ModifiedMaximumBarDiameter();
-        }
+        }       
 
         private double EffectiveTensileStrengthValue()
         {
@@ -83,15 +100,34 @@ namespace Engineer.Domain
 
         private double ModifiedMaximumBarDiameter()
         {
+            double a = cover + bar.Diameter / 2;
+            double h = rectangle.Height;
+            double omega;
+
             if (stressType == "zginanie")
             {
-
+                if (a < 0.1 * h)
+                {
+                    omega = (k * fcteff * kc * 0.5 * h) / (2.9 * 2 * a);
+                }
+                else
+                {
+                    omega = (k * fcteff * 5 * kc * 0.5 * h) / (2.9 * h);
+                }
             }
             else
             {
-
+                if (a < 0.2 * h)
+                {
+                    omega = (k * fcteff * h) / (8 * 2.9 * a);
+                }
+                else
+                {
+                    omega = (5 * k * fcteff) / (8 * 2.9);
+                }
             }
-            return 0;
+
+            return Math.Round(bar.Diameter / omega, 0);
         }
     }
 }
