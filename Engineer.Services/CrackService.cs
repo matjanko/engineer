@@ -14,7 +14,7 @@ namespace Engineer.Services
 
         public List<Crack> GetCrack()
         {
-            return CrackData.Crack;
+            return CrackWidthLimitsData.CrackWidth;
         }
     }
 }

@@ -16,9 +16,9 @@ namespace Engineer.Services
             
         }
 
-        public MinimumReinforcement AddMinimumReinforcement(Concrete concrete, Rectangle section, ReinforcingBar bar, string typeOfStress)
+        public MinimumReinforcement AddMinimumReinforcement(Concrete concrete, Rectangle section, ReinforcingBar bar, string typeOfStress, double cover, Crack crack)
         {            
-            return minimumReinforcement = new MinimumReinforcement(concrete, section, bar, typeOfStress);
+            return minimumReinforcement = new MinimumReinforcement(concrete, section, bar, typeOfStress, cover, crack);
         }
 
         public double GetMinimumReinforcement(Concrete concrete)
