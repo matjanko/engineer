@@ -4,9 +4,9 @@ using Engineer.Domain;
 
 namespace Engineer.Data
 {
-    public class CrackData
+    public class CrackWidthLimitsData
     {
-        public static List<Crack> Crack { get; } = new List<Crack>
+        public static List<Crack> CrackWidth { get; } = new List<Crack>
         {
             new Crack(0.1),
             new Crack(0.2),
