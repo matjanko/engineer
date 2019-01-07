@@ -239,13 +239,14 @@ namespace Engineer.ViewModels
             {
                 double width = Convert.ToDouble(SectionWidth);
                 double height = Convert.ToDouble(SectionHeight);
+                double cover = Convert.ToDouble(Cover);
                 var section = new Rectangle(width, height);              
 
                 minimumReinforcement = new ObservableCollection<MinimumReinforcement>();
 
                 foreach (var bar in ReinforcingBars.Where(x => x.IsSelected))
                 {
-                    minimumReinforcement.Add(minReinfService.AddMinimumReinforcement(SelectedConcrete, section, bar, Tensile));
+                    minimumReinforcement.Add(minReinfService.AddMinimumReinforcement(SelectedConcrete, section, bar, Tensile, cover, SelectedCrack));
                 }
 
                 ShowResults();
